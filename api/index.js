@@ -19,7 +19,6 @@ export default async (req, res) => {
     card_width,
     hide_rank,
     show_icons,
-    count_private,
     include_all_commits,
     line_height,
     title_color,
@@ -37,6 +36,7 @@ export default async (req, res) => {
     border_radius,
     number_format,
     border_color,
+    rank_icon,
   } = req.query;
   res.setHeader("Content-Type", "image/svg+xml");
 
@@ -51,16 +51,18 @@ export default async (req, res) => {
   try {
     const stats = await fetchStats(
       username,
-      parseBoolean(count_private),
       parseBoolean(include_all_commits),
       parseArray(exclude_repo),
     );
 
-    const cacheSeconds = clampValue(
+    let cacheSeconds = clampValue(
       parseInt(cache_seconds || CONSTANTS.FOUR_HOURS, 10),
       CONSTANTS.FOUR_HOURS,
       CONSTANTS.ONE_DAY,
     );
+    cacheSeconds = process.env.CACHE_SECONDS
+      ? parseInt(process.env.CACHE_SECONDS, 10) || cacheSeconds
+      : cacheSeconds;
 
     res.setHeader(
       "Cache-Control",
@@ -92,6 +94,7 @@ export default async (req, res) => {
         number_format,
         locale: locale ? locale.toLowerCase() : null,
         disable_animations: parseBoolean(disable_animations),
+        rank_icon,
       }),
     );
   } catch (err) {
