@@ -373,22 +373,33 @@ const noop = () => {};
 const logger =
   process.env.NODE_ENV !== "test" ? console : { log: noop, error: noop };
 
-// Cache settings.
-const CARD_CACHE_SECONDS = 14400;
-const ERROR_CACHE_SECONDS = 600;
+const ONE_MINUTE = 60;
+const FIVE_MINUTES = 300;
+const TEN_MINUTES = 600;
+const FIFTEEN_MINUTES = 900;
+const THIRTY_MINUTES = 1800;
+const TWO_HOURS = 7200;
+const FOUR_HOURS = 14400;
+const SIX_HOURS = 21600;
+const EIGHT_HOURS = 28800;
+const ONE_DAY = 86400;
 
 const CONSTANTS = {
-  ONE_MINUTE: 60,
-  FIVE_MINUTES: 300,
-  TEN_MINUTES: 600,
-  FIFTEEN_MINUTES: 900,
-  THIRTY_MINUTES: 1800,
-  TWO_HOURS: 7200,
-  FOUR_HOURS: 14400,
-  ONE_DAY: 86400,
-  CARD_CACHE_SECONDS,
-  ERROR_CACHE_SECONDS,
+  ONE_MINUTE,
+  FIVE_MINUTES,
+  TEN_MINUTES,
+  FIFTEEN_MINUTES,
+  THIRTY_MINUTES,
+  TWO_HOURS,
+  FOUR_HOURS,
+  SIX_HOURS,
+  EIGHT_HOURS,
+  ONE_DAY,
+  CARD_CACHE_SECONDS: SIX_HOURS,
+  ERROR_CACHE_SECONDS: TEN_MINUTES,
 };
+
+const TRY_AGAING_LATER = "Please try again later";
 
 const SECONDARY_ERROR_MESSAGES = {
   MAX_RETRY:
@@ -396,7 +407,8 @@ const SECONDARY_ERROR_MESSAGES = {
   NO_TOKENS:
     "Please add an env variable called PAT_1 with your GitHub API token in vercel",
   USER_NOT_FOUND: "Make sure the provided username is not an organization",
-  GRAPHQL_ERROR: "Please try again later",
+  GRAPHQL_ERROR: TRY_AGAING_LATER,
+  GITHUB_REST_API_ERROR: TRY_AGAING_LATER,
   WAKATIME_USER_NOT_FOUND: "Make sure you have a public WakaTime profile",
 };
 
@@ -418,6 +430,7 @@ class CustomError extends Error {
   static NO_TOKENS = "NO_TOKENS";
   static USER_NOT_FOUND = "USER_NOT_FOUND";
   static GRAPHQL_ERROR = "GRAPHQL_ERROR";
+  static GITHUB_REST_API_ERROR = "GITHUB_REST_API_ERROR";
   static WAKATIME_ERROR = "WAKATIME_ERROR";
 }
 
