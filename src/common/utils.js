@@ -352,18 +352,23 @@ const UPSTREAM_API_ERRORS = [
 /**
  * Renders error message on the card.
  *
- * @param {string} message Main error message.
- * @param {string} secondaryMessage The secondary error message.
- * @param {object} options Function options.
- * @param {string=} options.title_color Card title color.
- * @param {string=} options.text_color Card text color.
- * @param {string=} options.bg_color Card background color.
- * @param {string=} options.border_color Card border color.
- * @param {string=} options.theme Card theme.
- * @param {boolean=} options.show_repo_link Whether to show repo link or not.
+ * @param {object} args Function arguments.
+ * @param {string} args.message Main error message.
+ * @param {string} [args.secondaryMessage=""] The secondary error message.
+ * @param {object} [args.renderOptions={}] Render options.
+ * @param {string=} args.renderOptions.title_color Card title color.
+ * @param {string=} args.renderOptions.text_color Card text color.
+ * @param {string=} args.renderOptions.bg_color Card background color.
+ * @param {string=} args.renderOptions.border_color Card border color.
+ * @param {string=} args.renderOptions.theme Card theme.
+ * @param {boolean=} args.renderOptions.show_repo_link Whether to show repo link or not.
  * @returns {string} The SVG markup.
  */
-const renderError = (message, secondaryMessage = "", options = {}) => {
+const renderError = ({
+  message,
+  secondaryMessage = "",
+  renderOptions = {},
+}) => {
   const {
     title_color,
     text_color,
@@ -371,7 +376,7 @@ const renderError = (message, secondaryMessage = "", options = {}) => {
     border_color,
     theme = "default",
     show_repo_link = true,
-  } = options;
+  } = renderOptions;
 
   // returns theme based colors with proper overrides and defaults
   const { titleColor, textColor, bgColor, borderColor } = getCardColors({
@@ -446,34 +451,6 @@ const noop = () => {};
 // return console instance based on the environment
 const logger =
   process.env.NODE_ENV === "test" ? { log: noop, error: noop } : console;
-
-const MIN = 60;
-const HOUR = 60 * MIN;
-const DAY = 24 * HOUR;
-
-const CONSTANTS = {
-  ONE_MINUTE: MIN,
-  FIVE_MINUTES: 5 * MIN,
-  TEN_MINUTES: 10 * MIN,
-  FIFTEEN_MINUTES: 15 * MIN,
-  THIRTY_MINUTES: 30 * MIN,
-
-  TWO_HOURS: 2 * HOUR,
-  FOUR_HOURS: 4 * HOUR,
-  SIX_HOURS: 6 * HOUR,
-  EIGHT_HOURS: 8 * HOUR,
-  TWELVE_HOURS: 12 * HOUR,
-
-  ONE_DAY: DAY,
-  TWO_DAY: 2 * DAY,
-  SIX_DAY: 6 * DAY,
-  TEN_DAY: 10 * DAY,
-
-  CARD_CACHE_SECONDS: DAY,
-  TOP_LANGS_CACHE_SECONDS: 6 * DAY,
-  PIN_CARD_CACHE_SECONDS: 10 * DAY,
-  ERROR_CACHE_SECONDS: 10 * MIN,
-};
 
 /**
  * Missing query parameter class.
@@ -643,7 +620,6 @@ export {
   getCardColors,
   wrapTextMultiline,
   logger,
-  CONSTANTS,
   CustomError,
   MissingParamError,
   measureText,
