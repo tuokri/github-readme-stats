@@ -8,10 +8,15 @@ import {
   setCacheHeaders,
   setErrorCacheHeaders,
 } from "../src/common/cache.js";
+import {
+  MissingParamError,
+  retrieveSecondaryMessage,
+} from "../src/common/error.js";
 import { parseArray, parseBoolean, renderError } from "../src/common/utils.js";
 import { fetchStats } from "../src/fetchers/stats.js";
 import { isLocaleAvailable } from "../src/translations.js";
 
+// @ts-ignore
 export default async (req, res) => {
   const {
     username,
@@ -38,6 +43,7 @@ export default async (req, res) => {
     disable_animations,
     border_radius,
     number_format,
+    number_precision,
     border_color,
     rank_icon,
     show,
@@ -119,6 +125,7 @@ export default async (req, res) => {
         border_radius,
         border_color,
         number_format,
+        number_precision: parseInt(number_precision, 10),
         locale: locale ? locale.toLowerCase() : null,
         disable_animations: parseBoolean(disable_animations),
         rank_icon,
@@ -127,10 +134,25 @@ export default async (req, res) => {
     );
   } catch (err) {
     setErrorCacheHeaders(res);
+    if (err instanceof Error) {
+      return res.send(
+        renderError({
+          message: err.message,
+          secondaryMessage: retrieveSecondaryMessage(err),
+          renderOptions: {
+            title_color,
+            text_color,
+            bg_color,
+            border_color,
+            theme,
+            show_repo_link: !(err instanceof MissingParamError),
+          },
+        }),
+      );
+    }
     return res.send(
       renderError({
-        message: err.message,
-        secondaryMessage: err.secondaryMessage,
+        message: "An unknown error occurred",
         renderOptions: {
           title_color,
           text_color,
