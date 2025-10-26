@@ -2,16 +2,14 @@
 
 import { Card } from "../common/Card.js";
 import { getCardColors } from "../common/color.js";
-import { createProgressNode } from "../common/createProgressNode.js";
 import { formatBytes } from "../common/fmt.js";
 import { I18n } from "../common/I18n.js";
+import { chunkArray, clampValue, lowercaseTrim } from "../common/ops.js";
 import {
-  chunkArray,
-  clampValue,
+  createProgressNode,
   flexLayout,
-  lowercaseTrim,
   measureText,
-} from "../common/utils.js";
+} from "../common/render.js";
 import { langCardLocales } from "../translations.js";
 
 const DEFAULT_CARD_WIDTH = 300;

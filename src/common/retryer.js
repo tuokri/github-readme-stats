@@ -1,7 +1,7 @@
 // @ts-check
 
 import { CustomError } from "./error.js";
-import { logger } from "./utils.js";
+import { logger } from "./log.js";
 
 // Script variables.
 
@@ -13,14 +13,14 @@ const RETRIES = process.env.NODE_ENV === "test" ? 7 : PATs;
 
 /**
  * @typedef {import("axios").AxiosResponse} AxiosResponse Axios response.
- * @typedef {(variables: object, token: string, retriesForTests?: number) => Promise<AxiosResponse>} FetcherFunction Fetcher function.
+ * @typedef {(variables: any, token: string, retriesForTests?: number) => Promise<AxiosResponse>} FetcherFunction Fetcher function.
  */
 
 /**
  * Try to execute the fetcher function until it succeeds or the max number of retries is reached.
  *
  * @param {FetcherFunction} fetcher The fetcher function.
- * @param {object} variables Object with arguments to pass to the fetcher function.
+ * @param {any} variables Object with arguments to pass to the fetcher function.
  * @param {number} retries How many times to retry.
  * @returns {Promise<any>} The response from the fetcher function.
  */
@@ -66,21 +66,30 @@ const retryer = async (fetcher, variables, retries = 0) => {
     // finally return the response
     return response;
   } catch (err) {
+    /** @type {any} */
+    const e = err;
+
+    // network/unexpected error → let caller treat as failure
+    if (!e?.response) {
+      throw e;
+    }
+
     // prettier-ignore
     // also checking for bad credentials if any tokens gets invalidated
-    const isBadCredential = err.response.data && err.response.data.message === "Bad credentials";
+    const isBadCredential =
+      e?.response?.data?.message === "Bad credentials";
     const isAccountSuspended =
-      err.response.data &&
-      err.response.data.message === "Sorry. Your account was suspended.";
+      e?.response?.data?.message === "Sorry. Your account was suspended.";
 
     if (isBadCredential || isAccountSuspended) {
       logger.log(`PAT_${retries + 1} Failed`);
       retries++;
       // directly return from the function
       return retryer(fetcher, variables, retries);
-    } else {
-      return err.response;
     }
+
+    // HTTP error with a response → return it for caller-side handling
+    return e.response;
   }
 };
 
